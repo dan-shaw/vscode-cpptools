@@ -564,6 +564,7 @@ export interface Client {
     getCurrentConfigCustomVariable(variableName: string): Thenable<string>;
     getVcpkgInstalled(): Thenable<boolean>;
     getVcpkgEnabled(): Thenable<boolean>;
+    getVcpkgPath(): Thenable<string>;
     getCurrentCompilerPathAndArgs(): Thenable<util.CompilerPathAndArgs | undefined>;
     getKnownCompilers(): Thenable<configs.KnownCompiler[] | undefined>;
     takeOwnership(document: vscode.TextDocument): void;
@@ -1213,7 +1214,7 @@ export class DefaultClient implements Client {
                 default: {
                     systemIncludePath: settings_defaultSystemIncludePath
                 },
-                vcpkg_root: util.getVcpkgRoot(),
+                vcpkg_root: util.getVcpkgRoot(""),
                 gotoDefIntelliSense: abTestSettings.UseGoToDefIntelliSense,
                 experimentalFeatures: workspaceSettings.experimentalFeatures,
                 edgeMessagesDirectory: path.join(util.getExtensionFilePath("bin"), "messages", util.getLocaleId()),
@@ -1265,6 +1266,7 @@ export class DefaultClient implements Client {
                 cppSettingsScoped[key] = settings.get(key);
             }
             cppSettingsScoped["default"] = { systemIncludePath: cppSettingsResourceScoped.get("default.systemIncludePath") };
+            cppSettingsScoped["vcpkgPath"] = util.getVcpkgRoot(cppSettingsScoped["vcpkgPath"]);
         }
 
         const otherSettingsFolder: OtherSettings = new OtherSettings(this.RootUri);
@@ -1779,6 +1781,11 @@ export class DefaultClient implements Client {
     public getVcpkgEnabled(): Thenable<boolean> {
         const cppSettings: CppSettings = new CppSettings(this.RootUri);
         return Promise.resolve(cppSettings.vcpkgEnabled === true);
+    }
+
+    public getVcpkgPath(): Thenable<string> {
+        const cppSettings: CppSettings = new CppSettings(this.RootUri);
+        return Promise.resolve(util.getVcpkgRoot(cppSettings.vcpkgPath));
     }
 
     public getKnownCompilers(): Thenable<configs.KnownCompiler[] | undefined> {
@@ -2733,6 +2740,7 @@ class NullClient implements Client {
     getCurrentConfigCustomVariable(variableName: string): Thenable<string> { return Promise.resolve(""); }
     getVcpkgInstalled(): Thenable<boolean> { return Promise.resolve(false); }
     getVcpkgEnabled(): Thenable<boolean> { return Promise.resolve(false); }
+    getVcpkgPath(): Thenable<string> { return Promise.resolve(""); }
     getCurrentCompilerPathAndArgs(): Thenable<util.CompilerPathAndArgs | undefined> { return Promise.resolve(undefined); }
     getKnownCompilers(): Thenable<configs.KnownCompiler[] | undefined> { return Promise.resolve([]); }
     takeOwnership(document: vscode.TextDocument): void {}

@@ -140,7 +140,14 @@ export function getVcpkgPathDescriptorFile(): string {
 }
 
 let vcpkgRoot: string | undefined;
-export function getVcpkgRoot(): string {
+export function getVcpkgRoot(vcpkgRootPathSetting: string | undefined): string {
+    if(vcpkgRootPathSetting && vcpkgRootPathSetting !== "") {
+        vcpkgRootPathSetting = vcpkgRootPathSetting.trim();
+        if (fs.existsSync(vcpkgRootPathSetting)) {
+            return path.join(vcpkgRootPathSetting, "/installed").replace(/\\/g, "/");
+        }
+    }
+
     if (!vcpkgRoot && vcpkgRoot !== "") {
         vcpkgRoot = "";
         // Check for vcpkg instance.

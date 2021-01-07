@@ -1102,6 +1102,12 @@
           "markdownDescription": "%c_cpp.configuration.vcpkg.enabled.markdownDescription%",
           "scope": "resource"
         },
+        "C_Cpp.vcpkgPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "vcpkg path",
+          "scope": "resource"
+        },
         "C_Cpp.renameRequiresIdentifier": {
           "type": "boolean",
           "default": true,
